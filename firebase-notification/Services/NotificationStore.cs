@@ -1,5 +1,5 @@
 using System.Text.Json;
-using FirebaseNotification.Models;
+using FirebaseNotification.Features.Notification.Models;
 
 namespace FirebaseNotification.Services;
 
@@ -7,36 +7,47 @@ public sealed class NotificationStore
 {
     private static readonly Lock FileLock = new();
     private readonly string _filePath;
-    private readonly List<NotificationRecord> _items = [];
+    private readonly List<NotificationModel> _items = [];
 
-    public NotificationStore()
+    public NotificationStore(IWebHostEnvironment env)
     {
-        string dir = AppContext.BaseDirectory;
-        _filePath = Path.Combine(dir, "notifications-history.json");
+        _filePath = Path.Combine(env.ContentRootPath, "Config", "notifications-history.json");
         Load();
     }
 
-    public IReadOnlyList<NotificationRecord> GetAll()
+    public (int TotalCount, List<NotificationModel> Items) GetPaged(int pageNo, int pageSize, string? keyword)
     {
         lock (FileLock)
         {
-            return _items.OrderByDescending(x => x.CreatedAt).ToList();
+            var query = _items.AsEnumerable();
+            if (!string.IsNullOrWhiteSpace(keyword))
+            {
+                query = query.Where(x =>
+                    x.Title.Contains(keyword, StringComparison.OrdinalIgnoreCase) ||
+                    x.Content.Contains(keyword, StringComparison.OrdinalIgnoreCase) ||
+                    x.Target.Contains(keyword, StringComparison.OrdinalIgnoreCase));
+            }
+
+            var list = query.OrderByDescending(x => x.CreatedDateTime).ToList();
+            int total = list.Count;
+            var paged = list.Skip((pageNo - 1) * pageSize).Take(pageSize).ToList();
+            return (total, paged);
         }
     }
 
-    public NotificationRecord? Get(string id)
+    public NotificationModel? GetById(string id)
     {
         lock (FileLock)
         {
-            return _items.FirstOrDefault(x => x.Id == id);
+            return _items.FirstOrDefault(x => x.NotificationId == id);
         }
     }
 
-    public void Add(NotificationRecord record)
+    public void Add(NotificationModel model)
     {
         lock (FileLock)
         {
-            _items.Insert(0, record);
+            _items.Insert(0, model);
             Save();
         }
     }
@@ -45,7 +56,7 @@ public sealed class NotificationStore
     {
         lock (FileLock)
         {
-            int removed = _items.RemoveAll(x => x.Id == id);
+            int removed = _items.RemoveAll(x => x.NotificationId == id);
             if (removed > 0)
             {
                 Save();
@@ -72,7 +83,7 @@ public sealed class NotificationStore
             try
             {
                 string json = File.ReadAllText(_filePath);
-                var loaded = JsonSerializer.Deserialize<List<NotificationRecord>>(json);
+                var loaded = JsonSerializer.Deserialize<List<NotificationModel>>(json);
                 if (loaded is not null)
                 {
                     _items.Clear();
@@ -81,7 +92,7 @@ public sealed class NotificationStore
             }
             catch
             {
-                // Start fresh on deserialization errors
+                // Fallback to empty
             }
         }
     }
@@ -90,12 +101,13 @@ public sealed class NotificationStore
     {
         try
         {
+            Directory.CreateDirectory(Path.GetDirectoryName(_filePath)!);
             string json = JsonSerializer.Serialize(_items, new JsonSerializerOptions { WriteIndented = true });
             File.WriteAllText(_filePath, json);
         }
         catch
         {
-            // Ignore file write errors in transient environments
+            // Silently ignore disk write issues
         }
     }
 }

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Firebase Notification Tester</title>
+  <title>GBank Notification Service</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <style>
@@ -17,16 +17,19 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
       <div class="flex items-center space-x-3">
         <div class="w-10 h-10 rounded-lg bg-amber-500 text-white flex items-center justify-center font-bold text-xl shadow-md">
-          <i class="fa-solid fa-fire"></i>
+          <i class="fa-solid fa-building-columns"></i>
         </div>
         <div>
-          <h1 class="text-lg font-bold text-slate-900 leading-tight">Firebase Notification Tester</h1>
-          <p class="text-xs text-slate-500">Project: <span class="font-mono font-semibold text-amber-600">notification-test-6bae1</span></p>
+          <h1 class="text-lg font-bold text-slate-900 leading-tight">GBank Notification Manager</h1>
+          <p class="text-xs text-slate-500">
+            Active Project: <span class="font-mono font-semibold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">notification-test-6bae1</span>
+            <span class="mx-1.5 text-slate-300">|</span>
+            Route: <span class="font-mono font-semibold text-amber-600">/api/information/notification</span>
+          </p>
         </div>
       </div>
 
       <div class="flex items-center space-x-3">
-        <!-- Browser Notification Permission Button -->
         <button id="enableNotiBtn" onclick="requestBrowserPermission()" 
           class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 transition">
           <i class="fa-regular fa-bell mr-1.5 text-amber-500"></i>
@@ -52,7 +55,7 @@
       </div>
       <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
         <div>
-          <p class="text-xs font-medium uppercase tracking-wider text-slate-400">Delivered (FCM OK)</p>
+          <p class="text-xs font-medium uppercase tracking-wider text-slate-400">Successful (FCM)</p>
           <p id="statSuccess" class="text-2xl font-bold text-emerald-600 mt-1">0</p>
         </div>
         <div class="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg">
@@ -70,7 +73,7 @@
       </div>
     </div>
 
-    <!-- 2 Column Layout: Form + CRUD List -->
+    <!-- 2 Column Layout -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
 
       <!-- Left Column: Send Form -->
@@ -78,55 +81,55 @@
         <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm sticky top-24">
           <h2 class="text-base font-bold text-slate-900 flex items-center mb-4">
             <i class="fa-solid fa-pen-to-square text-amber-500 mr-2"></i>
-            Send New Notification
+            Create Notification
           </h2>
 
-          <form id="notiForm" onsubmit="handleSend(event)" class="space-y-4">
+          <form id="notiForm" onsubmit="handleCreate(event)" class="space-y-4">
             <!-- Target Type Selection -->
             <div>
               <label class="block text-xs font-semibold text-slate-700 mb-1.5 uppercase tracking-wide">Target Type</label>
               <div class="grid grid-cols-2 gap-2">
                 <label class="flex items-center justify-center p-2.5 border rounded-lg cursor-pointer text-xs font-medium transition" id="lblTopic">
-                  <input type="radio" name="targetType" value="topic" checked onchange="toggleTargetType('topic')" class="mr-2 text-amber-600">
+                  <input type="radio" name="targetType" value="0" checked onchange="toggleTargetType(0)" class="mr-2 text-amber-600">
                   <i class="fa-solid fa-tower-broadcast mr-1 text-slate-500"></i> Topic
                 </label>
                 <label class="flex items-center justify-center p-2.5 border rounded-lg cursor-pointer text-xs font-medium transition" id="lblToken">
-                  <input type="radio" name="targetType" value="token" onchange="toggleTargetType('token')" class="mr-2 text-amber-600">
+                  <input type="radio" name="targetType" value="1" onchange="toggleTargetType(1)" class="mr-2 text-amber-600">
                   <i class="fa-solid fa-mobile-screen mr-1 text-slate-500"></i> Device Token
                 </label>
               </div>
             </div>
 
-            <!-- Target Value Input -->
+            <!-- Target Input -->
             <div>
               <label id="targetLabel" class="block text-xs font-medium text-slate-700 mb-1">Topic Name</label>
-              <input type="text" id="targetInput" value="test-topic" required
-                placeholder="e.g. test-topic, Announcement"
+              <input type="text" id="targetInput" value="Announcement" required
+                placeholder="e.g. Announcement, WalletAnnouncement"
                 class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 font-mono">
-              <p id="targetHint" class="text-[11px] text-slate-400 mt-1">Topic broadcast reaches all subscribers immediately.</p>
+              <p id="targetHint" class="text-[11px] text-slate-400 mt-1">Topic broadcasts to all subscribed users.</p>
             </div>
 
-            <!-- Title Input -->
+            <!-- Title -->
             <div>
-              <label class="block text-xs font-medium text-slate-700 mb-1">Notification Title</label>
-              <input type="text" id="titleInput" required value="Test Notification"
+              <label class="block text-xs font-medium text-slate-700 mb-1">Title</label>
+              <input type="text" id="titleInput" required value="GBank Security Notice"
                 placeholder="Enter title..."
                 class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500">
             </div>
 
-            <!-- Body Input -->
+            <!-- Content -->
             <div>
-              <label class="block text-xs font-medium text-slate-700 mb-1">Notification Body</label>
-              <textarea id="bodyInput" required rows="3"
-                placeholder="Enter message body..."
-                class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500">Hello from Firebase Web Tester!</textarea>
+              <label class="block text-xs font-medium text-slate-700 mb-1">Content (Message Body)</label>
+              <textarea id="contentInput" required rows="3"
+                placeholder="Enter content..."
+                class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500">Your account maintenance has been completed successfully.</textarea>
             </div>
 
-            <!-- Custom Payload (Optional) -->
+            <!-- Payload (Optional) -->
             <div>
-              <label class="block text-xs font-medium text-slate-700 mb-1">Custom Payload (Optional JSON)</label>
+              <label class="block text-xs font-medium text-slate-700 mb-1">Data Payload (Optional JSON)</label>
               <input type="text" id="payloadInput"
-                placeholder='{"orderId": "12345", "type": "promo"}'
+                placeholder='{"service": "Wallet", "type": "Notice"}'
                 class="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 font-mono">
             </div>
 
@@ -134,37 +137,31 @@
             <button type="submit" id="submitBtn"
               class="w-full mt-2 py-2.5 px-4 bg-amber-500 hover:bg-amber-600 text-white font-medium text-sm rounded-lg shadow-sm flex items-center justify-center transition">
               <i class="fa-solid fa-paper-plane mr-2"></i>
-              <span>Send Notification</span>
+              <span>Send via GBank Service</span>
             </button>
           </form>
         </div>
       </div>
 
-      <!-- Right Column: CRUD Table / History -->
+      <!-- Right Column: List -->
       <div class="lg:col-span-7">
         <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-          <!-- Header & Toolbar -->
           <div class="p-4 border-b border-slate-200 flex items-center justify-between">
             <div>
-              <h2 class="text-base font-bold text-slate-900">Notification History</h2>
-              <p class="text-xs text-slate-500">CRUD operations: View, resend, or delete sent notifications</p>
+              <h2 class="text-base font-bold text-slate-900">Notification History (GBank)</h2>
+              <p class="text-xs text-slate-500">Managed via <code class="bg-slate-100 px-1 py-0.5 rounded text-amber-700">NotificationSetUpService</code></p>
             </div>
             <div class="flex items-center space-x-2">
-              <button onclick="loadNotifications()" title="Refresh"
+              <button onclick="loadList()" title="Refresh"
                 class="p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg text-sm transition">
                 <i class="fa-solid fa-arrows-rotate"></i>
-              </button>
-              <button onclick="clearAllNotifications()" title="Clear All History"
-                class="px-2.5 py-1.5 text-xs text-rose-600 hover:bg-rose-50 rounded-lg border border-rose-200 transition font-medium">
-                <i class="fa-regular fa-trash-can mr-1"></i> Clear All
               </button>
             </div>
           </div>
 
-          <!-- History Table / List -->
           <div id="listContainer" class="divide-y divide-slate-100 min-h-[300px]">
             <div class="p-8 text-center text-slate-400 text-sm">
-              <i class="fa-solid fa-spinner fa-spin mr-2"></i> Loading history...
+              <i class="fa-solid fa-spinner fa-spin mr-2"></i> Loading...
             </div>
           </div>
         </div>
@@ -173,7 +170,7 @@
     </div>
   </main>
 
-  <!-- Notification Toast Container -->
+  <!-- Toast -->
   <div id="toast" class="fixed bottom-5 right-5 z-50 transform transition-all duration-300 translate-y-20 opacity-0 pointer-events-none">
     <div id="toastCard" class="bg-slate-900 text-white px-4 py-3 rounded-xl shadow-xl flex items-center space-x-3 max-w-md border border-slate-700">
       <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400 text-lg"></i>
@@ -187,15 +184,14 @@
   <script>
     let notifications = [];
 
-    // On Load
     document.addEventListener("DOMContentLoaded", () => {
-      toggleTargetType('topic');
+      toggleTargetType(0);
       checkBrowserPermission();
-      loadNotifications();
+      loadList();
     });
 
     function toggleTargetType(type) {
-      const isTopic = type === 'topic';
+      const isTopic = type === 0;
       document.getElementById('lblTopic').className = isTopic 
         ? "flex items-center justify-center p-2.5 border rounded-lg cursor-pointer text-xs font-medium transition bg-amber-50 border-amber-400 text-amber-800"
         : "flex items-center justify-center p-2.5 border rounded-lg cursor-pointer text-xs font-medium transition border-slate-200 text-slate-600 hover:bg-slate-50";
@@ -209,67 +205,62 @@
 
       if (isTopic) {
         targetLabel.innerText = "Topic Name";
-        targetInput.placeholder = "e.g. test-topic, Announcement";
-        targetInput.value = "test-topic";
-        targetHint.innerText = "Topic broadcast reaches all subscribers immediately.";
+        targetInput.placeholder = "e.g. Announcement, WalletAnnouncement";
+        targetInput.value = "Announcement";
+        targetHint.innerText = "Broadcasts to all subscribed users.";
       } else {
         targetLabel.innerText = "Device FCM Token";
         targetInput.placeholder = "Paste device registration token here...";
         targetInput.value = "";
-        targetHint.innerText = "Single push sent directly to the specified mobile/web client.";
+        targetHint.innerText = "Single push sent directly to the specified client.";
       }
     }
 
-    // Browser Notification API
     function checkBrowserPermission() {
-      if (!("Notification" in window)) {
-        document.getElementById("enableNotiBtn").style.display = "none";
-        return;
-      }
+      if (!("Notification" in window)) return;
       const label = document.getElementById("permLabel");
       if (Notification.permission === "granted") {
         label.innerText = "Desktop Popup: ON";
         document.getElementById("enableNotiBtn").classList.add("bg-emerald-50", "text-emerald-700", "border-emerald-300");
-      } else if (Notification.permission === "denied") {
-        label.innerText = "Desktop Popup: Blocked";
-      } else {
-        label.innerText = "Enable Desktop Popup";
       }
     }
 
     async function requestBrowserPermission() {
-      if (!("Notification" in window)) {
-        alert("This browser does not support desktop notifications.");
-        return;
-      }
+      if (!("Notification" in window)) return;
       const perm = await Notification.requestPermission();
       checkBrowserPermission();
       if (perm === "granted") {
-        showLocalDesktopNotification("Desktop Notifications Enabled", "You will now see popups when notifications are sent!");
+        showDesktopPopup("Desktop Notifications Enabled", "You will see native popups on send!");
       }
     }
 
-    function showLocalDesktopNotification(title, body) {
+    function showDesktopPopup(title, body) {
       if ("Notification" in window && Notification.permission === "granted") {
         try {
           new Notification(title, {
             body: body,
             icon: "https://www.gstatic.com/mobilesdk/160503_mobilesdk/logo/2x/firebase_96dp.png"
           });
-        } catch (e) {
-          console.warn("Desktop notification trigger error:", e);
-        }
+        } catch (e) { }
       }
     }
 
-    // CRUD: READ (Load Notifications)
-    async function loadNotifications() {
+    // GBank API: POST /api/information/notification/List
+    async function loadList() {
       try {
-        const res = await fetch("/api/notifications");
-        if (!res.ok) throw new Error("Failed to load notifications");
-        notifications = await res.json();
-        renderList();
-        updateStats();
+        const res = await fetch("/api/information/notification/List", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ pageNo: 1, pageSize: 50 })
+        });
+        const result = await res.json();
+        if (result.isSuccess && result.data) {
+          notifications = result.data.notificationList || [];
+          renderList();
+          updateStats(result.data.totalCount);
+        } else {
+          throw new Error(result.respDesp || "Failed to load notifications");
+        }
       } catch (err) {
         document.getElementById("listContainer").innerHTML = `
           <div class="p-8 text-center text-rose-500 text-sm">
@@ -278,66 +269,44 @@
       }
     }
 
-    // Render Table List
     function renderList() {
       const container = document.getElementById("listContainer");
       if (!notifications || notifications.length === 0) {
         container.innerHTML = `
           <div class="p-12 text-center text-slate-400">
-            <div class="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-3 text-slate-400 text-2xl">
-              <i class="fa-solid fa-inbox"></i>
-            </div>
+            <i class="fa-solid fa-inbox text-3xl mb-2 text-slate-300"></i>
             <p class="text-sm font-medium">No notifications sent yet</p>
-            <p class="text-xs text-slate-400 mt-1">Use the form on the left to send your first test notification.</p>
           </div>`;
         return;
       }
 
       container.innerHTML = notifications.map(item => {
         const isSuccess = item.status === "Success";
-        const dateStr = new Date(item.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-        const isTopic = item.targetType === "topic";
+        const dateStr = new Date(item.createdDateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
         
         return `
           <div class="p-4 hover:bg-slate-50 transition flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div class="flex-1 min-w-0">
               <div class="flex items-center space-x-2 mb-1">
-                <!-- Status Badge -->
                 <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold ${isSuccess ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}">
                   <i class="fa-solid ${isSuccess ? 'fa-check' : 'fa-xmark'} mr-1"></i> ${item.status}
                 </span>
-
-                <!-- Target Badge -->
                 <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-slate-100 text-slate-700 font-mono">
-                  <i class="fa-solid ${isTopic ? 'fa-tower-broadcast' : 'fa-mobile-screen'} mr-1 text-slate-400"></i> ${escapeHtml(item.target)}
+                  ${escapeHtml(item.targetType)}: ${escapeHtml(item.target)}
                 </span>
-
-                <!-- Time -->
                 <span class="text-[11px] text-slate-400">${dateStr}</span>
               </div>
-
-              <!-- Title & Body -->
               <h3 class="text-sm font-bold text-slate-900 truncate">${escapeHtml(item.title)}</h3>
-              <p class="text-xs text-slate-600 line-clamp-1 mt-0.5">${escapeHtml(item.body)}</p>
-
-              <!-- Message ID or Error -->
-              ${isSuccess && item.messageId ? `
-                <p class="text-[11px] text-slate-400 font-mono mt-1 truncate">
-                  <span class="text-slate-500">MsgID:</span> ${escapeHtml(item.messageId)}
-                </p>` : ''}
-              ${!isSuccess && item.errorMessage ? `
-                <p class="text-[11px] text-rose-600 font-mono mt-1 line-clamp-1">
-                  <span class="font-bold">Error:</span> ${escapeHtml(item.errorMessage)}
-                </p>` : ''}
+              <p class="text-xs text-slate-600 line-clamp-1 mt-0.5">${escapeHtml(item.content)}</p>
+              ${isSuccess && item.messageId ? `<p class="text-[11px] text-slate-400 font-mono mt-1 truncate">ID: ${escapeHtml(item.messageId)}</p>` : ''}
+              ${!isSuccess && item.errorMessage ? `<p class="text-[11px] text-rose-600 font-mono mt-1">Error: ${escapeHtml(item.errorMessage)}</p>` : ''}
             </div>
-
-            <!-- Actions (Resend / Delete) -->
             <div class="flex items-center space-x-1.5 self-end sm:self-center">
-              <button onclick="resendNotification('${item.id}')" title="Resend this notification"
+              <button onclick="resendNotification('${item.notificationId}')" title="Resend"
                 class="px-2.5 py-1 text-xs font-medium text-slate-700 bg-white hover:bg-slate-100 border border-slate-200 rounded-md transition shadow-2xs">
                 <i class="fa-solid fa-repeat mr-1 text-slate-500"></i> Resend
               </button>
-              <button onclick="deleteNotification('${item.id}')" title="Delete record"
+              <button onclick="deleteNotification('${item.notificationId}')" title="Delete"
                 class="p-1.5 text-xs text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-md transition">
                 <i class="fa-regular fa-trash-can"></i>
               </button>
@@ -347,36 +316,36 @@
       }).join("");
     }
 
-    // CRUD: CREATE (Send Notification)
-    async function handleSend(e) {
+    // GBank API: POST /api/information/notification/Create
+    async function handleCreate(e) {
       e.preventDefault();
       const submitBtn = document.getElementById("submitBtn");
       const originalText = submitBtn.innerHTML;
       submitBtn.disabled = true;
       submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-2"></i> Sending...`;
 
-      const targetType = document.querySelector('input[name="targetType"]:checked').value;
+      const targetType = parseInt(document.querySelector('input[name="targetType"]:checked').value);
       const target = document.getElementById("targetInput").value.trim();
       const title = document.getElementById("titleInput").value.trim();
-      const body = document.getElementById("bodyInput").value.trim();
+      const content = document.getElementById("contentInput").value.trim();
       const payloadJson = document.getElementById("payloadInput").value.trim();
 
       try {
-        const res = await fetch("/api/notifications", {
+        const res = await fetch("/api/information/notification/Create", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ targetType, target, title, body, payloadJson })
+          body: JSON.stringify({ targetType, target, title, content, payloadJson })
         });
 
-        const data = await res.json();
-        if (data.status === "Success") {
-          showToast("Notification Sent!", `Delivered with ID: ${data.messageId}`, "success");
-          showLocalDesktopNotification(title, body);
+        const result = await res.json();
+        if (result.isSuccess) {
+          showToast("Notification Sent!", `Message ID: ${result.data.messageId}`, "success");
+          showDesktopPopup(title, content);
         } else {
-          showToast("Failed to Send", data.errorMessage || "Unknown error", "error");
+          showToast("Failed to Send", result.respDesp || "Error sending", "error");
         }
 
-        await loadNotifications();
+        await loadList();
       } catch (err) {
         showToast("Error", err.message, "error");
       } finally {
@@ -385,76 +354,60 @@
       }
     }
 
-    // CRUD: RESEND
+    // GBank API: POST /api/information/notification/Resend
     async function resendNotification(id) {
       try {
-        const res = await fetch(`/api/notifications/${id}/resend`, { method: "POST" });
-        const data = await res.json();
-        if (data.status === "Success") {
-          showToast("Resent Successfully", `New ID: ${data.messageId}`, "success");
-          showLocalDesktopNotification(data.title, data.body);
+        const res = await fetch("/api/information/notification/Resend", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ notificationId: id })
+        });
+        const result = await res.json();
+        if (result.isSuccess) {
+          showToast("Resent Successfully", `New ID: ${result.data.messageId}`, "success");
+          showDesktopPopup(result.data.title, result.data.content);
         } else {
-          showToast("Resend Failed", data.errorMessage, "error");
+          showToast("Resend Failed", result.respDesp, "error");
         }
-        await loadNotifications();
+        await loadList();
       } catch (err) {
         showToast("Error", err.message, "error");
       }
     }
 
-    // CRUD: DELETE
+    // GBank API: POST /api/information/notification/Delete
     async function deleteNotification(id) {
       try {
-        const res = await fetch(`/api/notifications/${id}`, { method: "DELETE" });
-        if (res.ok) {
-          showToast("Deleted", "Notification record removed.", "info");
-          await loadNotifications();
+        const res = await fetch("/api/information/notification/Delete", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ notificationId: id })
+        });
+        const result = await res.json();
+        if (result.isSuccess) {
+          showToast("Deleted", "Notification removed successfully.", "info");
+          await loadList();
         }
       } catch (err) {
         showToast("Error", err.message, "error");
       }
     }
 
-    // CRUD: CLEAR ALL
-    async function clearAllNotifications() {
-      if (!confirm("Are you sure you want to clear all notification history?")) return;
-      try {
-        const res = await fetch("/api/notifications", { method: "DELETE" });
-        if (res.ok) {
-          showToast("Cleared", "All records have been cleared.", "info");
-          await loadNotifications();
-        }
-      } catch (err) {
-        showToast("Error", err.message, "error");
-      }
+    function updateStats(total) {
+      document.getElementById("statTotal").innerText = total || notifications.length;
+      document.getElementById("statSuccess").innerText = notifications.filter(x => x.status === "Success").length;
+      document.getElementById("statFailed").innerText = notifications.filter(x => x.status === "Failed").length;
     }
 
-    // Stats
-    function updateStats() {
-      const total = notifications.length;
-      const success = notifications.filter(x => x.status === "Success").length;
-      const failed = notifications.filter(x => x.status === "Failed").length;
-
-      document.getElementById("statTotal").innerText = total;
-      document.getElementById("statSuccess").innerText = success;
-      document.getElementById("statFailed").innerText = failed;
-    }
-
-    // Toast UI
     let toastTimeout;
     function showToast(title, msg, type = "success") {
       const toast = document.getElementById("toast");
       const icon = document.getElementById("toastIcon");
       document.getElementById("toastTitle").innerText = title;
       document.getElementById("toastMessage").innerText = msg;
-
-      if (type === "success") {
-        icon.className = "fa-solid fa-circle-check text-emerald-400 text-lg";
-      } else if (type === "error") {
-        icon.className = "fa-solid fa-circle-xmark text-rose-400 text-lg";
-      } else {
-        icon.className = "fa-solid fa-circle-info text-blue-400 text-lg";
-      }
+      icon.className = type === "success" 
+        ? "fa-solid fa-circle-check text-emerald-400 text-lg" 
+        : (type === "error" ? "fa-solid fa-circle-xmark text-rose-400 text-lg" : "fa-solid fa-circle-info text-blue-400 text-lg");
 
       toast.classList.remove("translate-y-20", "opacity-0", "pointer-events-none");
       clearTimeout(toastTimeout);

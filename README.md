@@ -1,26 +1,56 @@
-# Firebase Notification CRUD Web Tester
+# GBank Firebase Cloud Messaging Notification Service
 
-A modern, clean, and lightweight ASP.NET Core Web Application to test and manage Firebase Cloud Messaging (FCM) push notifications with a complete CRUD web interface.
-
----
-
-## 🌟 Features
-
-- **Create (Send):** Send notifications to **Topics** (e.g., `test-topic`, `Announcement`) or specific **Device FCM Tokens** with optional JSON payloads.
-- **Read (History):** Real-time table of all sent notifications with delivery status (`Success` / `Failed`), timestamps, target badges, and Google FCM `Message ID`.
-- **Resend:** One-click resend button to re-deliver any past notification.
-- **Delete:** Remove individual history records or clear the entire history.
-- **Desktop Popup Notifications:** Built-in Web Notification API button. When enabled, every sent notification pops up as a native Windows desktop notification toast in your browser!
+Official GBank Architecture & Folder Placement implementation for Firebase Cloud Messaging in ASP.NET Core (.NET 10).
 
 ---
 
-## 📂 Project Structure
+## 🏛️ GBank Project Architecture & Folder Placement
 
-- [`firebase-adminsdk.json`](file:///C:/Users/User/source/repos/firebase-notification/firebase-notification/firebase-adminsdk.json): Google Firebase Service Account Key.
-- [`Models/NotificationRecord.cs`](file:///C:/Users/User/source/repos/firebase-notification/firebase-notification/Models/NotificationRecord.cs): Record and DTO models.
-- [`Services/NotificationStore.cs`](file:///C:/Users/User/source/repos/firebase-notification/firebase-notification/Services/NotificationStore.cs): Thread-safe local JSON persistence store.
-- [`Program.cs`](file:///C:/Users/User/source/repos/firebase-notification/firebase-notification/Program.cs): ASP.NET Core Minimal API with FirebaseAdmin SDK integration.
-- [`wwwroot/index.html`](file:///C:/Users/User/source/repos/firebase-notification/firebase-notification/wwwroot/index.html): Responsive Tailwind CSS Single-Page Application (SPA) dashboard.
+```
+firebase-notification/
+├── Config/
+│   ├── firebase-adminsdk.json                     # Google Service Account Credentials
+│   └── notifications-history.json                 # Notification Persistence Store
+├── Enums/
+│   ├── EnumFirebaseNotificationType.cs            # GBank Notification Type Categories
+│   ├── EnumNotiUserType.cs                        # GBank User Types (All, Wallet, Agent, Merchant)
+│   └── EnumRespType.cs                            # GBank Response Status (Success = 0, Error = 1)
+├── Features/
+│   └── Notification/                              # Feature-oriented Folder Pattern
+│       ├── NotificationController.cs              # Route: api/information/notification
+│       ├── NotificationSetUpService.cs            # Business Service with Logging & Result<T>
+│       └── Models/
+│           ├── NotificationModel.cs               # Domain & Listing Model
+│           ├── NotificationCreateReqModel.cs      # Create Request DTO
+│           ├── NotificationListRequestModel.cs    # Paged Search Request DTO
+│           └── NotificationDetailReqModel.cs      # Detail / Delete / Resend Request DTO
+├── Services/
+│   ├── NotificationStore.cs                       # Thread-safe Persistent Data Store
+│   └── Firebase/
+│       ├── IFirebaseService.cs                    # GBank IFirebaseService Contract
+│       └── FirebaseService.cs                     # FirebaseAdmin SDK, Multi-target Chunking & Logging
+├── Shared/
+│   └── Models/
+│       └── Result.cs                              # GBank Result<T> Standard Response Model
+├── wwwroot/
+│   └── index.html                                 # Dashboard UI connecting to GBank Endpoints
+├── Program.cs                                     # GBank WebApi Startup & DI Registration
+└── firebase-notification.csproj
+```
+
+---
+
+## 📡 GBank API Endpoints
+
+Base Route: `/api/information/notification`
+
+| Method | Endpoint | Description | Request Model | Response Model |
+| :--- | :--- | :--- | :--- | :--- |
+| `POST` | `/api/information/notification/List` | Get paged notifications | `NotificationListRequestModel` | `Result<NotificationListingModel>` |
+| `POST` | `/api/information/notification/Create` | Send notification via FCM | `NotificationCreateReqModel` | `Result<NotificationModel>` |
+| `POST` | `/api/information/notification/Detail` | Get notification by ID | `NotificationDetailReqModel` | `Result<NotificationModel>` |
+| `POST` | `/api/information/notification/Delete` | Delete notification | `NotificationDetailReqModel` | `Result<string>` |
+| `POST` | `/api/information/notification/Resend` | Resend notification | `NotificationDetailReqModel` | `Result<NotificationModel>` |
 
 ---
 
@@ -30,5 +60,5 @@ A modern, clean, and lightweight ASP.NET Core Web Application to test and manage
 dotnet run --project firebase-notification/firebase-notification.csproj --urls "http://127.0.0.1:5100"
 ```
 
-Open your browser at:
+Open Dashboard:
 👉 **[http://127.0.0.1:5100](http://127.0.0.1:5100)**
